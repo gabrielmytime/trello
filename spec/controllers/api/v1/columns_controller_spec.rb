@@ -57,5 +57,6 @@ RSpec.describe 'Api::V1::ColumnsController', type: :request do
   end
 
   describe '#order column' do
+    
   end
 end
