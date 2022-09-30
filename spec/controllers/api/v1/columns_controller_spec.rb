@@ -55,4 +55,7 @@ RSpec.describe 'Api::V1::ColumnsController', type: :request do
       expect(response).to have_http_status(404)
     end
   end
+
+  describe '#order column' do
+  end
 end

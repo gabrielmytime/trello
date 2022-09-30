@@ -6,21 +6,17 @@ module Api
       before_action :find_board
       before_action :find_column, only: %i[show update destroy]
 
-      # returns all columns that belong to board with board_id
       def index
         columns = @board.columns
         presenter = ColumnsPresenter.new(columns.by_position)
-        # render json: presenter.as_json, status: :ok
-        render json: { columns: columns.by_position }
+        render json: { columns: presenter.as_json }
       end
 
-      # read column
       def show
         presenter = ColumnPresenter.new(@column)
         render json: presenter.as_json, status: :ok
       end
 
-      # creates column
       def create
         creator = ColumnCreator.new
         column = creator.call(board: @board, column_params: column_params)
@@ -28,7 +24,6 @@ module Api
         render json: { created: column }, status: status
       end
 
-      # deletes column
       def destroy
         destroyer = ColumnDestroyer.new
         column = destroyer.call(column: @column, board: @board)
@@ -36,7 +31,6 @@ module Api
         render json: { destroyed: column }, status: status
       end
 
-      # updates column
       def update
         updater = ColumnUpdater.new
 
@@ -53,7 +47,7 @@ module Api
         column = updater.call(column: @column, column_params: column_params) if params[:to_position].nil?
 
         status = updater.succesful? ? :ok : :unprocessable_entity
-
+        
         render json: { updated: column }, status: status
       end
 
@@ -67,7 +61,6 @@ module Api
         @board = Board.find(params[:board_id])
       end
 
-      # get column params
       def column_params
         params.permit(:name, :board_id, :position)
       end
