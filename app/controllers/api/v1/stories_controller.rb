@@ -15,8 +15,7 @@ module Api
         stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
 
         presenter = StoriesPresenter.new(stories.by_position)
-        # render json: presenter.as_json
-        render json: { stories: stories.by_position }
+        render json: presenter.as_json
       end
 
       def show
@@ -42,7 +41,7 @@ module Api
         updater = StoryUpdater.new
         position_updater(updater: updater)
         story = updater.call(story: @story, story_params: story_params)
-        
+
         status = updater.succesful? ? :ok : :unprocessable_entity
         render json: { updated: story }, status: status
       end

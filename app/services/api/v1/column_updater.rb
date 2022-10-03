@@ -11,26 +11,23 @@ module Api
         !!@succesful
       end
 
-      def change_position(column:, to_position:, board:)
+      def change_position(board:, column:, to_position:)
+        current_position = column.position
         ActiveRecord::Base.transaction do
-          @succesful = @column_position_service.update_position(column: column, position: to_position, board: board)
-
+          @succesful = @column_position_service.update_position(board: board, current_position: current_position, to_position: to_position)
+          
           raise ActiveRecord::Rollback unless succesful?
         end
         column
       end
 
-      def change_board(board:, column:, to_position:, to_board:)
-        new_board = Board.find(to_board.to_i)
+      def change_board(board:, column:, to_board:, to_position:)
+        current_position = column.position
+        current_board = board.id
         ActiveRecord::Base.transaction do
-          @column_position_service.move_left(position: column.position, board: board)
-
-          @column_position_service.empty_position(position: to_position, board: new_board)
-
-          column.update({ board_id: to_board })
-
-          @succesful = column.update({ position: to_position })
-
+          @succesful = @column_position_service.update_board_and_position(current_board: current_board, current_position: current_position,
+            to_board: to_board, to_position: to_position)
+            
           raise ActiveRecord::Rollback unless succesful?
         end
         column

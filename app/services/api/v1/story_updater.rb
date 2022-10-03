@@ -24,8 +24,6 @@ module Api
       def change_column(column:, story:, to_position:, to_column:)
         current_position = story.position
         current_column = column.id
-        pp current_column
-        pp current_position
         ActiveRecord::Base.transaction do
           @succesful = @story_position_service.update_column_and_position(current_column: current_column, current_position: current_position,
             to_column: to_column, to_position: to_position)

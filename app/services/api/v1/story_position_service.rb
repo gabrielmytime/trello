@@ -18,11 +18,8 @@ module Api
       def update_column_and_position(current_column:, current_position:, to_column:, to_position:)
         Story.where(column_id: [current_column, to_column]).update_all("position = case
             when position >= #{to_position} and column_id = #{to_column} then position + 1
-            else position
-          end
-          ,position = case
             when position = #{current_position} and column_id = #{current_column} then #{to_position}
-            else position 
+            else position
           end
           ,column_id = case
             when position = #{current_position} and column_id = #{current_column} then #{to_column}
