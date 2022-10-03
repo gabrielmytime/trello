@@ -9,11 +9,23 @@ module Api
         @boards = boards
       end
 
-      def data
+      def data_as_json
         data = []
         @boards.each { |board| data << { 'board' => board, 'columns' => board.columns, 'stories' => board.stories } }
         { "data": data }
       end
+
+      # def data_as_json(*)
+      #   data = []
+      #   Board.each do |board|
+      #     data << board
+      #     board.each do |column|
+      #       data << column
+      #       data << column.stories
+      #     end
+      #   end
+      #   data
+      # end
 
       def as_json(*)
         boards_json = []

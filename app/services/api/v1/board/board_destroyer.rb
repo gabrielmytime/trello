@@ -3,10 +3,6 @@
 module Api
   module V1
     class BoardDestroyer
-      # def initialize(id)
-      #   FOR SERVICES ONLY
-      # end
-
       def succesful?
         !!@succesful
       end
