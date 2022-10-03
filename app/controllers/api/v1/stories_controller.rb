@@ -8,11 +8,7 @@ module Api
       before_action :find_story, only: %i[show destroy update]
 
       def index
-        stories = @column.stories
-
-        stories = stories.filter_by_status([params[:status]]) if params[:status].present?
-        stories = stories.filter_by_next_month if params[:due_date].present? && (params[:due_date].downcase == 'month')
-        stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
+        stories = filtered_stories(@column.stories)
 
         presenter = StoriesPresenter.new(stories.by_position)
         render json: presenter.as_json
@@ -73,6 +69,16 @@ module Api
         if params[:to_position].present? && params[:to_column].nil?
           story = updater.change_position(column: @column, story: @story, to_position: params[:to_position].to_i)
         end
+      end
+
+      def filtered_stories(stories:)
+        stories = stories.filter_by_status([params[:status]]) if params[:status].present?
+
+        stories = stories.filter_by_next_month if params[:due_date].present? && (params[:due_date].downcase == 'month')
+        
+        stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
+        
+        stories
       end
     end
   end
