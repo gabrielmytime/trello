@@ -7,37 +7,27 @@ module Api
       before_action :find_column, only: %i[show update destroy]
 
       def index
-        columns = @board.columns
-        presenter = ColumnsPresenter.new(columns.by_position)
-        render json: presenter.as_json
+        @columns = @board.columns
+        render json: ColumnsPresenter.new(@columns.by_position).as_json
       end
 
       def show
-        presenter = ColumnPresenter.new(@column)
-        render json: presenter.as_json, status: :ok
+        render json: ColumnPresenter.new(@column).as_json
       end
 
       def create
-        creator = ColumnCreator.new
-        column = creator.call(board: @board, column_params: column_params)
-        status = creator.succesful? ? :ok : :unprocessable_entity
-        render json: { created: column }, status: status
+        render json: ColumnCreator.new.call(board: @board, column_params: column_params)
       end
 
       def destroy
-        destroyer = ColumnDestroyer.new
-        column = destroyer.call(column: @column, board: @board)
-        status = destroyer.succesful? ? :ok : :unprocessable_entity
-        render json: { destroyed: column }, status: status
+        render json: ColumnDestroyer.new.call(column: @column, board: @board)
       end
 
       def update
         updater = ColumnUpdater.new
         position_updater(updater: updater)
-
         column = updater.call(column: @column, column_params: column_params)
-        status = updater.succesful? ? :ok : :unprocessable_entity
-        render json: { updated: column }, status: status
+        render json: column
       end
 
       private
@@ -57,7 +47,7 @@ module Api
       def position_updater(updater:)
         if params[:to_position].present? && params[:to_board].present?
           column = updater.change_board(board: @board, column: @column,
-            to_board: params[:to_board].to_i, to_position: params[:to_position].to_i)
+                                        to_board: params[:to_board].to_i, to_position: params[:to_position].to_i)
         end
 
         if params[:to_position].present? && params[:to_board].nil?

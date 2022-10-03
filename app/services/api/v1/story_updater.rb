@@ -11,10 +11,11 @@ module Api
         !!@succesful
       end
 
-      def change_position(column: ,story: , to_position:)
+      def change_position(column:, story:, to_position:)
         current_position = story.position
         ActiveRecord::Base.transaction do
-          @succesful = @story_position_service.update_position(column: column, current_position: current_position, to_position: to_position)
+          @succesful = @story_position_service.update_position(column: column, current_position: current_position,
+                                                               to_position: to_position)
 
           raise ActiveRecord::Rollback unless succesful?
         end
@@ -26,8 +27,8 @@ module Api
         current_column = column.id
         ActiveRecord::Base.transaction do
           @succesful = @story_position_service.update_column_and_position(current_column: current_column, current_position: current_position,
-            to_column: to_column, to_position: to_position)
-            
+                                                                          to_column: to_column, to_position: to_position)
+
           raise ActiveRecord::Rollback unless succesful?
         end
         story

@@ -14,8 +14,9 @@ module Api
       def change_position(board:, column:, to_position:)
         current_position = column.position
         ActiveRecord::Base.transaction do
-          @succesful = @column_position_service.update_position(board: board, current_position: current_position, to_position: to_position)
-          
+          @succesful = @column_position_service.update_position(board: board, current_position: current_position,
+                                                                to_position: to_position)
+
           raise ActiveRecord::Rollback unless succesful?
         end
         column
@@ -26,8 +27,8 @@ module Api
         current_board = board.id
         ActiveRecord::Base.transaction do
           @succesful = @column_position_service.update_board_and_position(current_board: current_board, current_position: current_position,
-            to_board: to_board, to_position: to_position)
-            
+                                                                          to_board: to_board, to_position: to_position)
+
           raise ActiveRecord::Rollback unless succesful?
         end
         column

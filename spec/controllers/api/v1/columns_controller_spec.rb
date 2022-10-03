@@ -27,8 +27,8 @@ RSpec.describe 'Api::V1::ColumnsController', type: :request do
       post api_v1_board_columns_path(board_id: board.id), params: { name: 'test column' }
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['created']['board_id']).to eq(board.id)
-      expect(parsed_response['created']['name']).to eq('test column')
+      expect(parsed_response['board_id']).to eq(board.id)
+      expect(parsed_response['name']).to eq('test column')
     end
   end
 
@@ -38,7 +38,7 @@ RSpec.describe 'Api::V1::ColumnsController', type: :request do
           params: { column: column, name: 'column updated' }
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['updated']['name']).to eq('column updated')
+      expect(parsed_response['name']).to eq('column updated')
     end
   end
 
@@ -47,16 +47,12 @@ RSpec.describe 'Api::V1::ColumnsController', type: :request do
       delete api_v1_board_column_path(board_id: board.id, id: column.id)
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['destroyed']['deleted_at']).not_to be(nil)
+      expect(parsed_response['deleted_at']).not_to be(nil)
     end
 
     it 'should NOT let me delete column (404)' do
       delete api_v1_board_column_path(board_id: board.id, id: 123_123)
       expect(response).to have_http_status(404)
     end
-  end
-
-  describe '#order column' do
-    
   end
 end

@@ -8,38 +8,32 @@ module Api
       before_action :find_story, only: %i[show destroy update]
 
       def index
-        stories = filtered_stories(@column.stories)
+        stories = @column.stories
+        stories = stories.filter_by_status([params[:status]]) if params[:status].present?
 
-        presenter = StoriesPresenter.new(stories.by_position)
-        render json: presenter.as_json
+        stories = stories.filter_by_next_month if params[:due_date].present? && (params[:due_date].downcase == 'month')
+
+        stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
+        render json: StoriesPresenter.new(stories.by_position).as_json
       end
 
       def show
-        presenter = StoryPresenter.new(@story)
-        render json: presenter.as_json, status: :ok
+        render json: StoryPresenter.new(@story).as_json
       end
 
       def create
-        creator = StoryCreator.new
-        story = creator.call(column: @column, story_params: story_params)
-        status = creator.succesful? ? :ok : :unprocessable_entity
-        render json: { created: story }, status: status
+        render json: StoryCreator.new.call(column: @column, story_params: story_params)
       end
 
       def destroy
-        destroyer = StoryDestroyer.new
-        story = destroyer.call(story: @story, column: @column)
-        status = destroyer.succesful? ? :ok : :unprocessable_entity
-        render json: { destroyed: story }, status: status
+        render json: StoryDestroyer.new.call(story: @story, column: @column)
       end
 
       def update
         updater = StoryUpdater.new
         position_updater(updater: updater)
         story = updater.call(story: @story, story_params: story_params)
-
-        status = updater.succesful? ? :ok : :unprocessable_entity
-        render json: { updated: story }, status: status
+        render json: story
       end
 
       private
@@ -57,28 +51,18 @@ module Api
       end
 
       def story_params
-        params.permit(:name, :due_date, :status, :column_id,  :position)
+        params.permit(:name, :due_date, :status, :column_id, :position)
       end
 
       def position_updater(updater:)
         if params[:to_position].present? && params[:to_column].present?
           story = updater.change_column(column: @column, story: @story,
-            to_column: params[:to_column].to_i, to_position: params[:to_position].to_i)
+                                        to_column: params[:to_column].to_i, to_position: params[:to_position].to_i)
         end
 
         if params[:to_position].present? && params[:to_column].nil?
           story = updater.change_position(column: @column, story: @story, to_position: params[:to_position].to_i)
         end
-      end
-
-      def filtered_stories(stories:)
-        stories = stories.filter_by_status([params[:status]]) if params[:status].present?
-
-        stories = stories.filter_by_next_month if params[:due_date].present? && (params[:due_date].downcase == 'month')
-        
-        stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
-        
-        stories
       end
     end
   end

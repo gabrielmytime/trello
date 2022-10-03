@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddDeletedAtToBoards < ActiveRecord::Migration[7.0]
   def change
     add_column :boards, :deleted_at, :datetime

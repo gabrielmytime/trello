@@ -28,8 +28,8 @@ RSpec.describe 'Api::V1::StoriesController', type: :request do
       post api_v1_board_column_stories_path(board_id: board.id, column_id: column.id), params: { name: 'test story' }
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['created']['column_id']).to eq(column.id)
-      expect(parsed_response['created']['name']).to eq('test story')
+      expect(parsed_response['column_id']).to eq(column.id)
+      expect(parsed_response['name']).to eq('test story')
     end
   end
 
@@ -39,7 +39,7 @@ RSpec.describe 'Api::V1::StoriesController', type: :request do
           params: { story: story, name: 'story updated' }
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['updated']['name']).to eq('story updated')
+      expect(parsed_response['name']).to eq('story updated')
     end
   end
 
@@ -48,7 +48,7 @@ RSpec.describe 'Api::V1::StoriesController', type: :request do
       delete api_v1_board_column_story_path(board_id: board.id, column_id: column.id, id: story.id)
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['destroyed']['deleted_at']).not_to be(nil)
+      expect(parsed_response['deleted_at']).not_to be(nil)
     end
 
     it 'should NOT let me delete story (404)' do
