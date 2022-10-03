@@ -1,5 +1,18 @@
 # frozen_string_literal: true
-
+# 
+# == Schema informations
+#
+# Table name: stories
+#
+# id                :integer      not null, primary key
+# name              :string
+# due_date          :datetime
+# status            :string
+# column_id         :integer
+# position          :integer
+# deleted_at        :datetime
+# created_at        :datetime     not null
+# updated_at        :datetime     not null
 class Story < ApplicationRecord
   belongs_to :column
 

@@ -11,9 +11,10 @@ module Api
         !!@succesful
       end
 
-      def change_position(story:, to_position:, column:)
+      def change_position(column: ,story: , to_position:)
+        current_position = story.position
         ActiveRecord::Base.transaction do
-          @succesful = @story_position_service.update_position(story: story, position: to_position, column: column)
+          @succesful = @story_position_service.update_position(column: column, current_position: current_position, to_position: to_position)
 
           raise ActiveRecord::Rollback unless succesful?
         end
@@ -21,16 +22,14 @@ module Api
       end
 
       def change_column(column:, story:, to_position:, to_column:)
-        new_column = Column.find(to_column)
+        current_position = story.position
+        current_column = column.id
+        pp current_column
+        pp current_position
         ActiveRecord::Base.transaction do
-          @story_position_service.move_up(position: story.position, column: column)
-
-          @story_position_service.empty_position(position: to_position, column: new_column)
-
-          story.update({ column_id: to_column })
-
-          @succesful = story.update({ position: to_position })
-
+          @succesful = @story_position_service.update_column_and_position(current_column: current_column, current_position: current_position,
+            to_column: to_column, to_position: to_position)
+            
           raise ActiveRecord::Rollback unless succesful?
         end
         story

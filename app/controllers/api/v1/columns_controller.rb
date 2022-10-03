@@ -9,7 +9,7 @@ module Api
       def index
         columns = @board.columns
         presenter = ColumnsPresenter.new(columns.by_position)
-        render json: { columns: presenter.as_json }
+        render json: presenter.as_json
       end
 
       def show

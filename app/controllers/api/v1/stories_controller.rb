@@ -15,7 +15,8 @@ module Api
         stories = stories.filter_by_next_week if params[:due_date].present? && (params[:due_date].downcase == 'week')
 
         presenter = StoriesPresenter.new(stories.by_position)
-        render json: presenter.as_json, status: :ok
+        # render json: presenter.as_json
+        render json: { stories: stories.by_position }
       end
 
       def show
@@ -39,16 +40,9 @@ module Api
 
       def update
         updater = StoryUpdater.new
-        if params[:to_position].present? && params[:to_column].present?
-          story = updater.change_column(column: @column, story: @story, to_position: params[:to_position].to_i,
-                                        to_column: params[:to_column].to_i)
-        end
-        if params[:to_position].present? && params[:to_column].nil?
-          story = updater.change_position(column: @column, story: @story,
-                                          to_position: params[:to_position].to_i)
-        end
-
-        story = updater.call(story: @story, story_params: story_params) if params[:to_position].nil?
+        position_updater(updater: updater)
+        story = updater.call(story: @story, story_params: story_params)
+        
         status = updater.succesful? ? :ok : :unprocessable_entity
         render json: { updated: story }, status: status
       end
@@ -68,7 +62,18 @@ module Api
       end
 
       def story_params
-        params.permit(:name, :due_date, :completed, :archived, :column_id, :status, :position)
+        params.permit(:name, :due_date, :status, :column_id,  :position)
+      end
+
+      def position_updater(updater:)
+        if params[:to_position].present? && params[:to_column].present?
+          story = updater.change_column(column: @column, story: @story,
+            to_column: params[:to_column].to_i, to_position: params[:to_position].to_i)
+        end
+
+        if params[:to_position].present? && params[:to_column].nil?
+          story = updater.change_position(column: @column, story: @story, to_position: params[:to_position].to_i)
+        end
       end
     end
   end
