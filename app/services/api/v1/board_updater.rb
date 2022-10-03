@@ -7,7 +7,7 @@ module Api
         !!@succesful
       end
 
-      def call(board:, board_params:)
+      def call(board: ,board_params:)
         ActiveRecord::Base.transaction do
           @succesful = board.update(board_params)
 

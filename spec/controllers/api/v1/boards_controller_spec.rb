@@ -24,7 +24,7 @@ RSpec.describe 'Api::V1::BoardsController', type: :request do
     it 'creates a board' do
       post api_v1_boards_path, params: { name: 'test board' }
       expect(response).to be_successful
-      expect(JSON.parse(response.body)['created']['name']).to eq('test board')
+      expect(JSON.parse(response.body)['name']).to eq('test board')
     end
   end
 
@@ -32,7 +32,7 @@ RSpec.describe 'Api::V1::BoardsController', type: :request do
     it 'updates board' do
       put api_v1_board_path(id: board.id), params: { board: board, name: 'Name board updated' }
       expect(response).to be_successful
-      expect(JSON.parse(response.body)['updated']['name']).to eq('Name board updated')
+      expect(JSON.parse(response.body)['name']).to eq('Name board updated')
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe 'Api::V1::BoardsController', type: :request do
       delete api_v1_board_path(id: board.id), params: { board: board }
       expect(response).to be_successful
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['destroyed']['deleted_at']).not_to be(nil)
+      expect(parsed_response['deleted_at']).not_to be(nil)
     end
 
     it 'should NOT let me delete a board (404)' do

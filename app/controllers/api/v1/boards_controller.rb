@@ -4,45 +4,31 @@ module Api
   module V1
     class BoardsController < ApplicationController
       before_action :find_board, only: %i[show destroy update]
-      # returns all Boards
+
       def index
-        boards = Board.all
-        presenter = BoardsPresenter.new(boards)
+        @boards = Board.all
+        presenter = BoardsPresenter.new(@boards)
         if params[:include_columns].present? && params[:include_stories].present?
-          render json: presenter.data, status: :ok
+          render json: presenter.data_as_json
         else
-          render json: presenter.as_json, status: :ok
+          render json: presenter.as_json
         end
       end
 
-      # read Board
       def show
-        presenter = BoardPresenter.new(@board)
-        render json: presenter.as_json, status: :ok
+        render json: BoardPresenter.new(@board).as_json
       end
 
-      # creates Board
       def create
-        creator = BoardCreator.new
-        board = creator.call(board_params)
-        status = creator.succesful? ? :ok : :unprocessable_entity
-        render json: { created: board }, status: status
+        render json: BoardCreator.new.call(board_params: board_params)
       end
 
-      # deletes Board
       def destroy
-        destroyer = BoardDestroyer.new
-        board = destroyer.call(board: @board)
-        status = destroyer.succesful? ? :ok : :unprocessable_entity
-        render json: { destroyed: board }, status: status
+        render json: BoardDestroyer.new.call(board: @board)
       end
 
-      # updates Board
       def update
-        updater = BoardUpdater.new
-        board = updater.call(board: @board, board_params: board_params)
-        status = updater.succesful? ? :ok : :unprocessable_entity
-        render json: { updated: board }, status: status
+        render json: BoardUpdater.new.call(board: @board, board_params: board_params)
       end
 
       private
@@ -51,7 +37,6 @@ module Api
         @board = Board.find(params[:id])
       end
 
-      # get Board params
       def board_params
         params.permit(:name)
       end

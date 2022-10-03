@@ -7,7 +7,7 @@ module Api
         !!@succesful
       end
 
-      def call(board_params)
+      def call(board_params:)
         board = Board.new(board_params)
         ActiveRecord::Base.transaction do
           @succesful = board.save
