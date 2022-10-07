@@ -14,7 +14,6 @@ module Api
           @succesful = story.save
           raise ActiveRecord::Rollback unless succesful?
         end
-
         story
       end
     end

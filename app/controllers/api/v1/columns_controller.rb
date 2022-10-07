@@ -25,12 +25,22 @@ module Api
 
       def update
         updater = ColumnUpdater.new
-        position_updater(updater: updater)
+        position_updater
         column = updater.call(column: @column, column_params: column_params)
         render json: column
       end
 
       private
+      def position_updater
+        if params[:to_position].present? && params[:to_board].present?
+          column = Api::V1::ColumnPositionService.new.change_board(board: @board, column: @column,
+                                        to_board: params[:to_board].to_i, to_position: params[:to_position].to_i)
+        end
+
+        if params[:to_position].present? && params[:to_board].nil?
+          column = Api::V1::ColumnPositionService.new.change_position(board: @board, column: @column, to_position: params[:to_position].to_i)
+        end
+      end
 
       def find_column
         @column = @board.columns.find(params[:id])
@@ -42,17 +52,6 @@ module Api
 
       def column_params
         params.permit(:name, :board_id, :position)
-      end
-
-      def position_updater(updater:)
-        if params[:to_position].present? && params[:to_board].present?
-          column = updater.change_board(board: @board, column: @column,
-                                        to_board: params[:to_board].to_i, to_position: params[:to_position].to_i)
-        end
-
-        if params[:to_position].present? && params[:to_board].nil?
-          column = updater.change_position(board: @board, column: @column, to_position: params[:to_position].to_i)
-        end
       end
     end
   end
