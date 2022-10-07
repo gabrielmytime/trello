@@ -3,6 +3,34 @@
 module Api
   module V1
     class StoryPositionService
+      def succesful?
+        !!@succesful
+      end
+
+      def change_position(column:, story:, to_position:)
+        current_position = story.position
+        ActiveRecord::Base.transaction do
+          @succesful = update_position(column: column, current_position: current_position,
+                                                               to_position: to_position)
+
+          raise ActiveRecord::Rollback unless succesful?
+        end
+        story
+      end
+
+      def change_column(column:, story:, to_position:, to_column:)
+        current_position = story.position
+        current_column = column.id
+        ActiveRecord::Base.transaction do
+          @succesful = update_column_and_position(current_column: current_column, current_position: current_position,
+                                                                          to_column: to_column, to_position: to_position)
+
+          raise ActiveRecord::Rollback unless succesful?
+        end
+        story
+      end
+
+      private 
       def update_position(column:, current_position:, to_position:)
         column.stories.update_all("position=case
           when position = #{current_position} then #{to_position}

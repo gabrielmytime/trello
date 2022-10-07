@@ -5,7 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::StoriesController', type: :request do
   let(:board) { create(:board, name: 'board') }
   let(:column) { create(:column, name: 'column', board_id: board.id) }
-  let(:story) { create(:story, name: 'story', column_id: column.id) }
+  let(:story) { create(:story, name: 'story', column_id: column.id, position: 1) }
+  let(:story2) { create(:story, name: 'story2', column_id: column.id, position: 2)}
 
   describe '#index' do
     it 'renders all stories that belong to the column' do

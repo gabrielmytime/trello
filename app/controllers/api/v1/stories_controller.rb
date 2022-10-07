@@ -26,12 +26,23 @@ module Api
 
       def update
         updater = StoryUpdater.new
-        position_updater(updater: updater)
+        position_updater
         story = updater.call(story: @story, story_params: story_params)
         render json: story
       end
 
       private
+      def position_updater
+        if params[:to_position].present? && params[:to_column].present?
+          story = StoryPositionService.new.change_column(column: @column, story: @story,
+                                        to_column: params[:to_column].to_i, to_position: params[:to_position].to_i)
+        end
+
+        if params[:to_position].present? && params[:to_column].nil?
+          story = StoryPositionService.new.change_position(column: @column, story: @story, 
+                                        to_position: params[:to_position].to_i)
+        end
+      end
 
       def find_story
         @story = @column.stories.find(params[:id])
@@ -49,16 +60,7 @@ module Api
         params.permit(:name, :due_date, :status, :column_id, :position)
       end
 
-      def position_updater(updater:)
-        if params[:to_position].present? && params[:to_column].present?
-          story = updater.change_column(column: @column, story: @story,
-                                        to_column: params[:to_column].to_i, to_position: params[:to_position].to_i)
-        end
-
-        if params[:to_position].present? && params[:to_column].nil?
-          story = updater.change_position(column: @column, story: @story, to_position: params[:to_position].to_i)
-        end
-      end
+      
     end
   end
 end
