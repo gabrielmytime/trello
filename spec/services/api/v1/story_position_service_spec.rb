@@ -9,10 +9,15 @@ RSpec.describe 'Api::V1::StoryPositionService' do
   let(:story2) { create(:story, name:Faker::Name.name, column_id: column.id, position: 2) }
 
   describe "#update_position" do
+    before do
+      story1
+      story2
+    end
+
     it "should move my story to position 1" do
       expect(story2.position).to eq(2)
       Api::V1::StoryPositionService.new.change_position(column: column, story: story2, to_position: 1)
-      expect(story2.position).to eq(1)
+      expect(story2.reload.position).to eq(1)
     end
   end
 

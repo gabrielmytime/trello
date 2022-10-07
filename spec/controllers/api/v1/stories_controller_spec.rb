@@ -42,6 +42,18 @@ RSpec.describe 'Api::V1::StoriesController', type: :request do
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['name']).to eq('story updated')
     end
+
+    before do
+      story
+      story2
+    end
+
+    it 'updates the position of a story' do
+      expect(story2.position).to eq(2)
+      put api_v1_board_column_story_path(board_id: board.id, column_id: column.id, id: story2.id),
+          params: { :to_position => '1' }
+      expect(story2.reload.position).to eq(1)
+    end
   end
 
   describe '#destroy' do
