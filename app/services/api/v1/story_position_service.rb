@@ -3,10 +3,6 @@
 module Api
   module V1
     class StoryPositionService
-      def succesful?
-        !!@succesful
-      end
-
       def update_position(column:, current_position:, to_position:)
         column.stories.update_all("position=case
           when position = #{current_position} then #{to_position}

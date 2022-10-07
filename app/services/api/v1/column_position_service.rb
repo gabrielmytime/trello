@@ -3,10 +3,6 @@
 module Api
   module V1
     class ColumnPositionService
-      def succesful?
-        !!@succesful
-      end
-
       def update_position(board:, current_position:, to_position:)
         board.columns.update_all("position=case
           when position = #{current_position} then #{to_position}
