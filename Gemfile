@@ -13,9 +13,12 @@ gem 'rails', '~> 7.0.4'
 gem 'rubocop'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'faker'
+gem 'sidekiq'
+gem 'rswag-api'
 
 group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails'
   gem 'rspec-rails'
+  gem 'rswag-specs'
 end
