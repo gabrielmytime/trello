@@ -8,27 +8,39 @@ module Api
       before_action :find_story, only: %i[show destroy update]
 
       def index
-        stories = StoriesFilter.new(stories: @column.stories, filters: params).call
-        render json: StoriesPresenter.new(stories.by_position).as_json
+        stories = Api::V1::StoriesFilter.new(stories: @column.stories, filters: params).call
+        presenter = Api::V1::StoriesPresenter.new(stories.by_position)
+        render :json => { stories: presenter.as_json }
       end
 
       def show
-        render json: StoryPresenter.new(@story).as_json
+        presenter = Api::V1::StoryPresenter.new(@story)
+        render :json => { story: presenter.as_json }
       end
 
       def create
-        render json: StoryCreator.new.call(column: @column, story_params: story_params)
+        creator = Api::V1::StoryCreator.new
+        story = creator.call(column: @column, story_params: story_params)
+        status = creator.successful? :ok : :unprocessable_entity
+        presenter = Api::V1::StoryPresenter.new(story)
+        render :json => { story: presenter.as_json }, status: status
       end
 
       def destroy
-        render json: StoryDestroyer.new.call(story: @story, column: @column)
+        destroyer = Api::V1::StoryDestroyer.new
+        destroyer.call(story: @story, column: @column)
+        status = destroyer.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::StoryPresenter.new(@story)
+        render :json => { story: presenter.as_json }, status: status
       end
 
       def update
         updater = StoryUpdater.new
         position_updater
         story = updater.call(story: @story, story_params: story_params)
-        render json: story
+        status = updater.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::StoryPresenter.new(@story)
+        render :json => { story: presenter.as_json }, status: status
       end
 
       private

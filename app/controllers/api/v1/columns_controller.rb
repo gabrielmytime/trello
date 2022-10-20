@@ -8,26 +8,38 @@ module Api
 
       def index
         @columns = @board.columns
-        render json: ColumnsPresenter.new(@columns.by_position).as_json
+        presenter = Api::V1::ColumnsPresenter.new(@columns.by_position)
+        render :json => { columns: presenter.as_json }
       end
 
       def show
-        render json: ColumnPresenter.new(@column).as_json
+        presenter = Api::V1::ColumnPresenter.new(@column)
+        render :json => { column: presenter.as_json }
       end
 
       def create
-        render json: ColumnCreator.new.call(board: @board, column_params: column_params)
+        creator = Api::V1::ColumnCreator.new
+        column = creator.call(board: @board, column_params: column_params)
+        status = creator.successful? :ok : :unprocessable_entity
+        presenter = Api::V1::ColumnPresenter.new(column)
+        render :json => { column: presenter.as_json }, status: status
       end
 
       def destroy
-        render json: ColumnDestroyer.new.call(column: @column, board: @board)
+        destroyer = Api::V1::ColumnDestroyer.new
+        destroyer.call(column: @column, board: @board)
+        status = destroyer.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::ColumnPresenter.new(@column)
+        render :json => { column: presenter.as_json }, status: status
       end
 
       def update
         updater = ColumnUpdater.new
         position_updater
-        column = updater.call(column: @column, column_params: column_params)
-        render json: column
+        updater.call(column: @column, column_params: column_params)
+        status = updater.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::ColumnPresenter.new(@column)
+        render :json => { column: presenter.as_json }, status: status
       end
 
       private

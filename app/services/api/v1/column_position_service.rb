@@ -3,17 +3,17 @@
 module Api
   module V1
     class ColumnPositionService
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def change_position(board:, column:, to_position:)
         current_position = column.position
         ActiveRecord::Base.transaction do
-          @succesful = update_position(board: board, current_position: current_position,
+          @successful = update_position(board: board, current_position: current_position,
                                                                 to_position: to_position)
 
-          raise ActiveRecord::Rollback unless succesful?
+          raise ActiveRecord::Rollback unless successful?
         end
         column
       end
@@ -22,10 +22,10 @@ module Api
         current_position = column.position
         current_board = board.id
         ActiveRecord::Base.transaction do
-          @succesful = update_board_and_position(current_board: current_board, current_position: current_position,
+          @successful = update_board_and_position(current_board: current_board, current_position: current_position,
                                                                           to_board: to_board, to_position: to_position)
 
-          raise ActiveRecord::Rollback unless succesful?
+          raise ActiveRecord::Rollback unless successful?
         end
         column
       end

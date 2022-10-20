@@ -3,16 +3,16 @@
 module Api
   module V1
     class ColumnCreator
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(column_params:, board:)
         column = Column.new(column_params)
         column.board_id = board.id
         ActiveRecord::Base.transaction do
-          @succesful = column.save
-          raise ActiveRecord::Rollback unless succesful?
+          @successful = column.save
+          raise ActiveRecord::Rollback unless successful?
         end
         column
       end

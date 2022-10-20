@@ -3,15 +3,15 @@
 module Api
   module V1
     class BoardDestroyer
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(board:)
         ActiveRecord::Base.transaction do
-          @succesful = board.destroy
+          @successful = board.destroy
 
-          raise ActiveRecord::Rollback unless succesful?
+          raise ActiveRecord::Rollback unless successful?
         end
         board
       end

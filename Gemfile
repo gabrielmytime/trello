@@ -15,6 +15,7 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'faker'
 gem 'sidekiq'
 gem 'rswag-api'
+gem 'rswag-ui'
 
 group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]

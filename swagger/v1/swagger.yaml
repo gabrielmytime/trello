@@ -1,0 +1,392 @@
+---
+openapi: 3.0.1
+info:
+  title: TRELLO API
+  version: v1
+paths:
+  "/api/v1/boards":
+    get:
+      summary: Retrieve the boards
+      tags:
+      - Boards
+      responses:
+        '200':
+          description: boards retrieved
+    post:
+      summary: Creates a board
+      tags:
+      - Boards
+      parameters: []
+      responses:
+        '201':
+          description: board created
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+  "/api/v1/boards/{id}":
+    get:
+      summary: Retrieves a board
+      tags:
+      - Boards
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: board found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                required:
+                - id
+                - name
+        '404':
+          description: board not found
+        '406':
+          description: unsupported accept header
+    put:
+      summary: Updates a board
+      tags:
+      - Boards
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: board updated
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+    delete:
+      summary: Deletes a board
+      tags:
+      - Boards
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: board deleted
+        '404':
+          description: board not found
+  "/api/v1/boards/{board_id}/columns":
+    get:
+      summary: Retrieve the columns of a board
+      tags:
+      - Columns
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: columns retrieved
+    post:
+      summary: Creates a column
+      tags:
+      - Columns
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: column created
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+  "/api/v1/boards/{board_id}/columns/{id}":
+    get:
+      summary: Retrieves a column
+      tags:
+      - Columns
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: column found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                required:
+                - id
+                - name
+        '404':
+          description: column not found
+        '406':
+          description: unsupported accept header
+    put:
+      summary: Updates a column
+      tags:
+      - Columns
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: column updated
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+    delete:
+      summary: Deletes a column
+      tags:
+      - Columns
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: column deleted
+        '404':
+          description: column not found
+  "/api/v1/boards/{board_id}/columns/{column_id}/stories":
+    get:
+      summary: Retrieve the stories of a column
+      tags:
+      - Stories
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: columns retrieved
+    post:
+      summary: Creates a story
+      tags:
+      - Stories
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: story created
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                due_date:
+                  type: datetime
+              required:
+              - namestatusdue_date
+  "/api/v1/boards/{board_id}/columns/{column_id}/stories/{id}":
+    get:
+      summary: Retrieves a story
+      tags:
+      - Stories
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: story found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  due_date:
+                    type: datetime
+                required:
+                - id
+                - name
+                - due_date
+                - status
+        '404':
+          description: story not found
+        '406':
+          description: unsupported accept header
+    put:
+      summary: Updates a story
+      tags:
+      - Stories
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: story updated
+        '422':
+          description: invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+    delete:
+      summary: Deletes a story
+      tags:
+      - Stories
+      parameters:
+      - name: board_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: column_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: story deleted
+        '404':
+          description: story not found
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000/

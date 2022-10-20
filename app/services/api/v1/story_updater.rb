@@ -3,15 +3,15 @@
 module Api
   module V1
     class StoryUpdater
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(story:, story_params:)
         ActiveRecord::Base.transaction do
-          @succesful = story.update(story_params)
+          @successful = story.update(story_params)
 
-          raise ActiveRecord::Rollback unless succesful?
+          raise ActiveRecord::Rollback unless successful?
         end
         story
       end

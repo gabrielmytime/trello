@@ -7,28 +7,41 @@ module Api
 
       def index
         @boards = Board.all
-        presenter = BoardsPresenter.new(@boards)
+        presenter = Api::V1::BoardsPresenter.new(@boards)
         if params[:include_columns].present? && params[:include_stories].present?
-          render json: presenter.data_as_json
+          render :json => { data: presenter.data_as_json } 
         else
-          render json: presenter.as_json
+          render :json => { boards: presenter.as_json } 
         end
       end
 
       def show
-        render json: BoardPresenter.new(@board).as_json
+        presenter = Api::V1::BoardPresenter.new(@board)
+        render :json => { board: presenter.as_json }
       end
 
       def create
-        render json: BoardCreator.new.call(board_params: board_params)
+        creator = Api::V1::BoardCreator.new
+        board = creator.call(board_params: board_params)
+        status = creator.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::BoardPresenter.new(board)
+        render :json => { board: presenter.as_json }, status: status
       end
 
       def destroy
-        render json: BoardDestroyer.new.call(board: @board)
+        destroyer = Api::V1::BoardDestroyer.new
+        destroyer.call(@board)
+        status = creator.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::BoardPresenter.new(@board)
+        render :json => { board: presenter.as_json }, status: status 
       end
 
       def update
-        render json: BoardUpdater.new.call(board: @board, board_params: board_params)
+        updater = Api::V1::BoardUpdater.new
+        updater.call(board: @board, board_params: board_params)
+        status = updater.successful? ? :ok : :unprocessable_entity
+        presenter = Api::V1::BoardPresenter.new(@board)
+        render :json => { board: presenter.as_json }, status: status 
       end
 
       private

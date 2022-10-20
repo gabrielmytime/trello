@@ -3,15 +3,15 @@
 module Api
   module V1
     class ColumnUpdater
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(column:, column_params:)
         ActiveRecord::Base.transaction do
-          @succesful = column.update(column_params)
+          @successful = column.update(column_params)
 
-          raise ActiveRecord::Rollback unless succesful?
+          raise ActiveRecord::Rollback unless successful?
         end
         column
       end

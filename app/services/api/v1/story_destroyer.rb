@@ -3,14 +3,14 @@
 module Api
   module V1
     class StoryDestroyer
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(story:, column:)
         ActiveRecord::Base.transaction do
-          @succesful = story.destroy
-          raise ActiveRecord::Rollback unless succesful?
+          @successful = story.destroy
+          raise ActiveRecord::Rollback unless successful?
         end
         story
       end

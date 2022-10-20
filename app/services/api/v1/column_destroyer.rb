@@ -3,14 +3,14 @@
 module Api
   module V1
     class ColumnDestroyer
-      def succesful?
-        !!@succesful
+      def successful?
+        !!@successful
       end
 
       def call(column:, board:)
         ActiveRecord::Base.transaction do
-          @succesful = column.destroy
-          raise ActiveRecord::Rollback unless succesful?
+          @successful = column.destroy
+          raise ActiveRecord::Rollback unless successful?
         end
         column
       end
