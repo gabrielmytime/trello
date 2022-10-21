@@ -18,8 +18,26 @@ RSpec.configure do |config|
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
-        title: 'TRELLO API',
+        title: 'TRELLO API VERSION 1',
         version: 'v1'
+      },
+      paths: {},
+      servers: [
+        {
+          url: 'http://{defaultHost}',
+          variables: {
+            defaultHost: {
+              default: 'localhost:3000/'
+            }
+          }
+        }
+      ]
+    },
+    'v2/swagger.yaml' => {
+      openapi: '3.0.1',
+      info: {
+        title: 'TRELLO API VERSION 2',
+        version: 'v2'
       },
       paths: {},
       servers: [
@@ -41,3 +59,4 @@ RSpec.configure do |config|
   # Defaults to json. Accepts ':json' and ':yaml'.
   config.swagger_format = :yaml
 end
+

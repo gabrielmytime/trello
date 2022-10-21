@@ -2,7 +2,7 @@
 
 require 'swagger_helper'
 
-describe 'Boards API' do
+describe 'TRELLO API VERSION 2', swagger_doc: 'v2/swagger.yaml' do
   path '/api/v1/boards' do
     get 'Retrieve the boards' do
       tags 'Boards'
