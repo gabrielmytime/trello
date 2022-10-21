@@ -263,7 +263,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
       parameter name: :column_id, in: :path, type: :string
       response '200', 'columns retrieved' do
         let(:board) { { name: 'board' } }
-        let(:column) { {name: 'column', board_id: board.id } }
+        let(:column) { { name: 'column', board_id: board.id } }
         let(:story) { { name: 'foo', column_id: column.id } }
         run_test!
       end
@@ -279,7 +279,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
         properties: {
           name: { type: :string },
           status: { type: :string },
-          due_date: { type: :datetime },
+          due_date: { type: :datetime }
         },
         required: ['name' 'status' 'due_date']
       }
@@ -310,7 +310,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
                  id: { type: :integer },
                  name: { type: :string },
                  status: { type: :string },
-                 due_date: { type: :datetime },
+                 due_date: { type: :datetime }
                },
                required: %w[id name due_date status]
         let(:board) { Board.create(name: 'board') }
@@ -350,7 +350,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
                  id: { type: :integer },
                  name: { type: :string },
                  status: { type: :string },
-                 due_date: { type: :datetime },
+                 due_date: { type: :datetime }
                },
                required: %w[id name due_date status]
         let(:board) { Board.create(name: 'board') }
@@ -365,7 +365,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
                  id: { type: :integer },
                  name: { type: :string },
                  status: { type: :string },
-                 due_date: { type: :datetime },
+                 due_date: { type: :datetime }
                },
                required: %w[id name due_date status]
         let(:board) { Board.create(name: 'board') }
@@ -388,7 +388,7 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
                  id: { type: :integer },
                  name: { type: :string },
                  status: { type: :string },
-                 due_date: { type: :datetime },
+                 due_date: { type: :datetime }
                },
                required: %w[id name due_date status]
         let(:board) { Board.create(name: 'board') }
