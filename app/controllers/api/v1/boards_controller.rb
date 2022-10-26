@@ -30,10 +30,12 @@ module Api
 
       def destroy
         destroyer = Api::V1::BoardDestroyer.new
-        destroyer.call(@board)
-        status = creator.successful? ? :ok : :unprocessable_entity
+        destroyer.call(board: @board)
         presenter = Api::V1::BoardPresenter.new(@board)
-        render :json => { board: presenter.as_json }, status: status 
+
+        render :json => { board: presenter.as_json }, status: :ok
+      rescue ActiveRecord, BoardError => e
+        render :json => { error: e.message }, status: :unprocessable_entity
       end
 
       def update

@@ -20,7 +20,7 @@ module Api
       def create
         creator = Api::V1::ColumnCreator.new
         column = creator.call(board: @board, column_params: column_params)
-        status = creator.successful? :ok : :unprocessable_entity
+        status = creator.successful? ? :ok : :unprocessable_entity
         presenter = Api::V1::ColumnPresenter.new(column)
         render :json => { column: presenter.as_json }, status: status
       end

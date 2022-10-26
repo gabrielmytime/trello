@@ -8,12 +8,21 @@ module Api
       end
 
       def call(board:)
-        ActiveRecord::Base.transaction do
-          @successful = board.destroy
+        @board = board
 
-          raise ActiveRecord::Rollback unless successful?
-        end
-        board
+        raise Api::V1::BoardError unless can_destroy_board?
+
+        destroy_board
+      end
+
+      def can_destroy_board?
+        @board.persisted?
+      end
+
+      def destroy_board
+        @board.destroy
+
+        @board
       end
     end
   end

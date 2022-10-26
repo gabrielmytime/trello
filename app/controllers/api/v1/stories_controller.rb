@@ -21,7 +21,7 @@ module Api
       def create
         creator = Api::V1::StoryCreator.new
         story = creator.call(column: @column, story_params: story_params)
-        status = creator.successful? :ok : :unprocessable_entity
+        status = creator.successful? ? :ok : :unprocessable_entity
         presenter = Api::V1::StoryPresenter.new(story)
         render :json => { story: presenter.as_json }, status: status
       end

@@ -22,7 +22,7 @@ module Api
       end
 
       def as_json(*)
-        { "columns": columns }
+        columns
       end
     end
   end

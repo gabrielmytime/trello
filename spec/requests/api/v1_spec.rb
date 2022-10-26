@@ -6,17 +6,20 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
   path '/api/v1/boards' do
     get 'Retrieve the boards' do
       tags 'Boards'
-      consumes 'application/json'
-      response '200', 'boards retrieved' do
-        let(:board) { { name: 'foo' } }
-        run_test!
+      produces 'application/json'
+      response(200, 'boards retrieved') do
+        run_test! do |response| 
+          data = JSON.parse(response.body)
+          expect(data["boards"].count).to eq(4)
+        end
       end
     end
 
     post 'Creates a board' do
       tags 'Boards'
-      consumes 'application/json'
-      parameter name: :board, in: :body, schema: {
+      consumes "application/json"
+      produces "application/json"
+      parameter name: :board_params, in: :body, schema: {
         type: :object,
         properties: {
           name: { type: :string }
@@ -24,102 +27,80 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
         required: ['name']
       }
 
-      response '201', 'board created' do
-        let(:board) { { name: 'foo' } }
-        run_test!
+      response(200, 'successful') do
+        let(:board_params) do { name: "foo" } end
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["board"]["name"]).to eq("foo")
+        end
       end
 
-      response '422', 'invalid request' do
-        let(:board) { { name: '' } }
+      response(422, 'invalid request') do
+        let(:board_params) do { name: "" } end
         run_test!
       end
     end
   end
 
   path '/api/v1/boards/{id}' do
-    get 'Retrieves a board' do
+    get 'Retrieve a board' do
       tags 'Boards'
       produces 'application/json'
       parameter name: :id, in: :path, type: :string
+      let(:board) { create(:board, name: 'foo') }
 
-      response '200', 'board found' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-
-        let(:id) { Board.create(name: 'foo').id }
-        run_test!
-      end
-
-      response '404', 'board not found' do
-        let(:id) { 'invalid' }
-        run_test!
-      end
-
-      response '406', 'unsupported accept header' do
-        let(:Accept) { 'application/foo' }
-        run_test!
+      response(200, 'board found') do
+        let(:id) { board.id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["board"]["id"]).to eq(board.id)
+          expect(data["board"]["name"]).to eq(board.name)
+        end
       end
     end
 
     put 'Updates a board' do
       tags 'Boards'
       consumes 'application/json'
+      produces 'application/json'
       parameter name: :id, in: :path, type: :string
-      parameter name: :board, in: :body, schema: {
+      parameter name: :update_params, in: :body, schema: {
         type: :object,
         properties: {
+          id: { type: :integer },
           name: { type: :string }
         },
         required: ['name']
       }
 
-      response '200', 'board updated' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-
-        let(:id) { Board.create(name: 'foo').id }
-        run_test!
+      response(200, 'board updated') do
+        let(:update_params) { { name: 'update' } }
+        let(:id) { create(:board, name: 'foo').id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["board"]["name"]).to eq('update')
+        end
       end
 
-      response '422', 'invalid request' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-
-        let(:id) { Board.create(name: '').id }
+      response(422, 'invalid request') do
+        let(:update_params) { { name: '' } }
+        let(:id) { create(:board, name: 'foo').id }
         run_test!
       end
     end
 
     delete 'Deletes a board' do
       tags 'Boards'
-      consumes 'application/json'
+      produces 'application/json'
       parameter name: :id, in: :path, type: :string
+      let(:board) { create(:board, name: 'foo') }
 
-      response '200', 'board deleted' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-
-        let(:id) { Board.create(name: 'foo').id }
+      response(200, 'board deleted') do
+        let(:id) { board.id }
         run_test!
       end
 
-      response '404', 'board not found' do
+      response(404, 'board not found') do
         let(:id) { 'invalid' }
         run_test!
       end
@@ -127,13 +108,23 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
   end
 
   path '/api/v1/boards/{board_id}/columns' do
-    get 'Retrieve the columns of a board' do
+    get 'Retrieves the columns of a board' do
       tags 'Columns'
-      consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
-      response '200', 'columns retrieved' do
-        let(:board) { { name: 'foc' } }
-        let(:column) { { name: 'foo', board_id: board.id } }
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'col', board: board) }
+
+      response(200, 'columns retrieved') do
+        let(:board_id) { board.id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["columns"].last["name"]).to eq('col')
+        end
+      end
+
+      response(404, 'not found') do
+        let(:board_id) { 'invalid' }
         run_test!
       end
     end
@@ -141,22 +132,30 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
     post 'Creates a column' do
       tags 'Columns'
       consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
-      parameter name: :column, in: :body, schema: {
+      parameter name: :column_params, in: :body, schema: {
         type: :object,
         properties: {
-          name: { type: :string }
+          name: { type: :string },
         },
         required: ['name']
       }
-
-      response '201', 'column created' do
-        let(:column) { { name: 'foo' } }
-        run_test!
+      let!(:board) { create(:board, name: 'foo') }
+      
+      response(200, 'column created') do
+        let(:board_id) { board.id }
+        let(:column_params) do { name: "foo", board_id: board.id } end
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["column"]["name"]).to eq('foo')
+          expect(data["column"]["board_id"]).to eq(board.id)
+        end
       end
 
-      response '422', 'invalid request' do
-        let(:column) { { name: '' } }
+      response(422, 'invalid request') do
+        let(:board_id) { board.id }
+        let(:column_params) do { name: "", board_id: board.id } end
         run_test!
       end
     end
@@ -168,87 +167,77 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
       produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
+      let(:board) { create(:board, name: 'foo') }
+      let(:column) { create(:column, name: 'foo', board_id: board.id) }
 
-      response '200', 'column found' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-        let(:board) { Board.create(name: 'foo') }
-        let(:id) { Column.create(name: 'foo').id }
-        run_test!
+      response(200, 'column found') do
+        let(:board_id) { board.id }
+        let(:id) { column.id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["column"]["name"]).to eq('foo')
+          expect(data["column"]["board_id"]).to eq(board.id)
+        end
       end
 
-      response '404', 'column not found' do
+      response(404, 'not found') do
+        let(:board_id) { board.id }
         let(:id) { 'invalid' }
-        run_test!
-      end
-
-      response '406', 'unsupported accept header' do
-        let(:Accept) { 'application/foo' }
-        run_test!
+        run_test! 
       end
     end
 
     put 'Updates a column' do
       tags 'Columns'
       consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
-      parameter name: :column, in: :body, schema: {
+      parameter name: :update_column_params, in: :body, schema: {
         type: :object,
         properties: {
-          name: { type: :string }
+          name: { type: :string },
         },
         required: ['name']
       }
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
 
-      response '200', 'column updated' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-        let(:board) { Board.create(name: 'foo') }
-        let(:id) { Column.create(name: 'foo').id }
-        run_test!
+      response(200, 'column updated') do
+        let(:board_id) { board.id }
+        let(:id) { column.id }
+        let(:update_column_params) { { name: 'update' } }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["column"]["name"]).to eq('update')
+          expect(data["column"]["board_id"]).to eq(board.id)
+        end
       end
 
-      response '422', 'invalid request' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-        let(:board) { Board.create(name: 'foo') }
-        let(:id) { Column.create(name: '').id }
+      response(422, 'invalid request') do
+        let(:board_id) { board.id }
+        let(:id) { column.id }
+        let(:update_column_params) { { name: '' } }
         run_test!
       end
     end
 
     delete 'Deletes a column' do
       tags 'Columns'
-      consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
 
-      response '200', 'column deleted' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string }
-               },
-               required: %w[id name]
-        let(:board) { Board.create(name: 'foo') }
-        let(:id) { Column.create(name: 'foo').id }
+      response(200, 'column deleted') do
+        let(:board_id) { board.id }
+        let(:id) { column.id }
         run_test!
       end
 
-      response '404', 'column not found' do
+      response(404, 'column not found') do
+        let(:board_id) { board.id }
         let(:id) { 'invalid' }
         run_test!
       end
@@ -256,15 +245,27 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
   end
 
   path '/api/v1/boards/{board_id}/columns/{column_id}/stories' do
-    get 'Retrieve the stories of a column' do
+    get 'Retrieves stories' do
       tags 'Stories'
-      consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :column_id, in: :path, type: :string
-      response '200', 'columns retrieved' do
-        let(:board) { { name: 'board' } }
-        let(:column) { { name: 'column', board_id: board.id } }
-        let(:story) { { name: 'foo', column_id: column.id } }
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
+      let!(:story) { create(:story, name: 'foo', column_id: column.id) }
+
+      response(200, 'stories retrieved') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["stories"].last["name"]).to eq('foo')
+        end
+      end
+
+      response(404, 'not found') do
+        let(:board_id) { board.id }
+        let(:column_id) { 'invalid' }
         run_test!
       end
     end
@@ -272,25 +273,34 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
     post 'Creates a story' do
       tags 'Stories'
       consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :column_id, in: :path, type: :string
-      parameter name: :story, in: :body, schema: {
+      parameter name: :story_params, in: :body, schema: {
         type: :object,
         properties: {
           name: { type: :string },
-          status: { type: :string },
-          due_date: { type: :datetime }
         },
-        required: ['name' 'status' 'due_date']
+        required: ['name']
       }
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
 
-      response '201', 'story created' do
-        let(:story) { { name: 'foo', status: 'a' } }
-        run_test!
+      response(200, 'story created') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:story_params) { { name:'story' } }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["story"]["name"]).to eq('story')
+          expect(data["story"]["column_id"]).to eq(column.id)
+        end
       end
 
-      response '422', 'invalid request' do
-        let(:story) { { name: '' } }
+      response(422, 'invalid request') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:story_params) { { name:'' } }
         run_test!
       end
     end
@@ -303,101 +313,88 @@ describe 'TRELLO API VERSION 1', swagger_doc: 'v1/swagger.yaml' do
       parameter name: :board_id, in: :path, type: :string
       parameter name: :column_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
+      let(:board) { create(:board, name: 'foo') }
+      let(:column) { create(:column, name: 'foo', board_id: board.id) }
+      let(:story) { create(:story, name: 'foo', column_id: column.id) }
 
-      response '200', 'story found' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string },
-                 status: { type: :string },
-                 due_date: { type: :datetime }
-               },
-               required: %w[id name due_date status]
-        let(:board) { Board.create(name: 'board') }
-        let(:column) { Column.create(name: 'column', board_id: board.id) }
-        let(:id) { Story.create(name: 'foo').id }
-        run_test!
+      response(200, 'story found') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:id) { story.id }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["story"]["name"]).to eq('foo')
+          expect(data["story"]["column_id"]).to eq(column.id)
+        end
       end
 
-      response '404', 'story not found' do
+      response(404, 'not found') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
         let(:id) { 'invalid' }
-        run_test!
-      end
-
-      response '406', 'unsupported accept header' do
-        let(:Accept) { 'application/foo' }
-        run_test!
+        run_test! 
       end
     end
 
-    put 'Updates a story' do
+    put 'Updates story' do
       tags 'Stories'
       consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :column_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
-      parameter name: :story, in: :body, schema: {
+      parameter name: :update_story_params, in: :body, schema: {
         type: :object,
         properties: {
-          name: { type: :string }
+          name: { type: :string },
         },
         required: ['name']
       }
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
+      let!(:story) { create(:story, name: 'foo', column_id: column.id) }
 
-      response '200', 'story updated' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string },
-                 status: { type: :string },
-                 due_date: { type: :datetime }
-               },
-               required: %w[id name due_date status]
-        let(:board) { Board.create(name: 'board') }
-        let(:column) { Column.create(name: 'column', board_id: board.id) }
-        let(:id) { Story.create(name: 'foo').id }
-        run_test!
+      response(200, 'story created') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:id) { story.id }
+        let(:update_story_params) { { name:'update' } }
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data["story"]["name"]).to eq('update')
+          expect(data["story"]["column_id"]).to eq(column.id)
+        end
       end
 
-      response '422', 'invalid request' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string },
-                 status: { type: :string },
-                 due_date: { type: :datetime }
-               },
-               required: %w[id name due_date status]
-        let(:board) { Board.create(name: 'board') }
-        let(:column) { Column.create(name: 'column', board_id: board.id) }
-        let(:id) { Story.create(name: '').id }
+      response(422, 'invalid request') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:id) { story.id }
+        let(:update_story_params) { { name:'' } }
         run_test!
       end
     end
 
     delete 'Deletes a story' do
       tags 'Stories'
-      consumes 'application/json'
+      produces 'application/json'
       parameter name: :board_id, in: :path, type: :string
       parameter name: :column_id, in: :path, type: :string
       parameter name: :id, in: :path, type: :string
+      let!(:board) { create(:board, name: 'foo') }
+      let!(:column) { create(:column, name: 'foo', board_id: board.id) }
+      let!(:story) { create(:story, name: 'foo', column_id: column.id) }
 
-      response '200', 'story deleted' do
-        schema type: :object,
-               properties: {
-                 id: { type: :integer },
-                 name: { type: :string },
-                 status: { type: :string },
-                 due_date: { type: :datetime }
-               },
-               required: %w[id name due_date status]
-        let(:board) { Board.create(name: 'board') }
-        let(:column) { Column.create(name: 'column', board_id: board.id) }
-        let(:id) { Story.create(name: 'foo').id }
+      response(200, 'column deleted') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
+        let(:id) { story.id }
         run_test!
       end
 
-      response '404', 'story not found' do
+      response(404, 'column not found') do
+        let(:board_id) { board.id }
+        let(:column_id) { column.id }
         let(:id) { 'invalid' }
         run_test!
       end

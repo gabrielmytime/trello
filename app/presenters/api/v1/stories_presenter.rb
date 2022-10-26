@@ -24,9 +24,7 @@ module Api
       end
 
       def as_json(*)
-        {
-          "stories": stories
-        }
+        stories
       end
     end
   end

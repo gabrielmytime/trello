@@ -18,8 +18,8 @@ paths:
       - Boards
       parameters: []
       responses:
-        '201':
-          description: board created
+        '200':
+          description: successful
         '422':
           description: invalid request
       requestBody:
@@ -34,7 +34,7 @@ paths:
               - name
   "/api/v1/boards/{id}":
     get:
-      summary: Retrieves a board
+      summary: Retrieve a board
       tags:
       - Boards
       parameters:
@@ -46,22 +46,6 @@ paths:
       responses:
         '200':
           description: board found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                required:
-                - id
-                - name
-        '404':
-          description: board not found
-        '406':
-          description: unsupported accept header
     put:
       summary: Updates a board
       tags:
@@ -83,6 +67,8 @@ paths:
             schema:
               type: object
               properties:
+                id:
+                  type: integer
                 name:
                   type: string
               required:
@@ -104,7 +90,7 @@ paths:
           description: board not found
   "/api/v1/boards/{board_id}/columns":
     get:
-      summary: Retrieve the columns of a board
+      summary: Retrieves the columns of a board
       tags:
       - Columns
       parameters:
@@ -116,6 +102,8 @@ paths:
       responses:
         '200':
           description: columns retrieved
+        '404':
+          description: not found
     post:
       summary: Creates a column
       tags:
@@ -127,7 +115,7 @@ paths:
         schema:
           type: string
       responses:
-        '201':
+        '200':
           description: column created
         '422':
           description: invalid request
@@ -160,22 +148,8 @@ paths:
       responses:
         '200':
           description: column found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                required:
-                - id
-                - name
         '404':
-          description: column not found
-        '406':
-          description: unsupported accept header
+          description: not found
     put:
       summary: Updates a column
       tags:
@@ -228,7 +202,7 @@ paths:
           description: column not found
   "/api/v1/boards/{board_id}/columns/{column_id}/stories":
     get:
-      summary: Retrieve the stories of a column
+      summary: Retrieves stories
       tags:
       - Stories
       parameters:
@@ -244,7 +218,9 @@ paths:
           type: string
       responses:
         '200':
-          description: columns retrieved
+          description: stories retrieved
+        '404':
+          description: not found
     post:
       summary: Creates a story
       tags:
@@ -261,7 +237,7 @@ paths:
         schema:
           type: string
       responses:
-        '201':
+        '200':
           description: story created
         '422':
           description: invalid request
@@ -273,12 +249,8 @@ paths:
               properties:
                 name:
                   type: string
-                status:
-                  type: string
-                due_date:
-                  type: datetime
               required:
-              - namestatusdue_date
+              - name
   "/api/v1/boards/{board_id}/columns/{column_id}/stories/{id}":
     get:
       summary: Retrieves a story
@@ -303,30 +275,10 @@ paths:
       responses:
         '200':
           description: story found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  status:
-                    type: string
-                  due_date:
-                    type: datetime
-                required:
-                - id
-                - name
-                - due_date
-                - status
         '404':
-          description: story not found
-        '406':
-          description: unsupported accept header
+          description: not found
     put:
-      summary: Updates a story
+      summary: Updates story
       tags:
       - Stories
       parameters:
@@ -347,7 +299,7 @@ paths:
           type: string
       responses:
         '200':
-          description: story updated
+          description: story created
         '422':
           description: invalid request
       requestBody:
@@ -382,9 +334,9 @@ paths:
           type: string
       responses:
         '200':
-          description: story deleted
+          description: column deleted
         '404':
-          description: story not found
+          description: column not found
 servers:
 - url: http://{defaultHost}
   variables:

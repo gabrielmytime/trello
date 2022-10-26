@@ -15,7 +15,7 @@ module Api
           "name": @story.name,
           "due_date": @story.due_date, # edit date to look nicer
           "status": @story.status,
-          "columnd_id": @story.column_id
+          "column_id": @story.column_id
         }
       end
     end
